@@ -37,6 +37,22 @@
 </div>
 <div id="error" style="margin: auto; text-align:center"></div>
 
+<iframe id="chat-frame" src="http://localhost:3000/" style="
+  all: unset;
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  width: 400px !important;
+  height: 600px !important;
+  border: none !important;
+  border-radius: 12px !important;
+  z-index: 2147483647 !important;
+  overflow: visible !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  pointer-events: auto !important;
+  background: white !important;
+  display: block !important;
+"></iframe>
 
 
 

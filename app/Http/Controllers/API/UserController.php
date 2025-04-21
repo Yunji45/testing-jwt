@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 
 class UserController extends Controller
@@ -47,40 +49,77 @@ class UserController extends Controller
     }
 
     // created Login API
+    // public function login(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'email'=>'required|string|email|',
+    //         'password'=>'required|string|min:6',
+    //     ]);
+
+    //     if ($validator->fails())
+    //     {
+    //         return response()->json($validator->errors());
+    //     }
+    //     $token = auth()->attempt($validator->validated());
+    //     if (!$token)
+    //     {
+    //         return response()->json([
+    //             'success'=>false,
+    //             'msg' =>'Username and Password is uncorrect',
+    //         ]);
+
+    //     }
+
+    //     // Ambil data pengguna yang terkait dengan token
+    //     $user = auth()->user();
+
+    //     // Membuat token dengan klaim tambahan
+    //     $tokenWithClaims = auth()->setTTL(60)->claims([
+    //         'name' => $user->name, // Menambahkan nama pengguna ke klaim
+    //     ])->login($user);
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'msg'=>'Successfully Login',
+    //         'token' => $tokenWithClaims,
+    //         'token_type' => 'Bearer',
+    //         'expires_in' => auth()->factory()->getTTL()*60
+    //     ]);
+    // }
+
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email'=>'required|string|email|',
-            'password'=>'required|string|min:6',
+            'email' => 'required|string|email',
+            'password' => 'required|string|min:6',
         ]);
-
-        if ($validator->fails())
-        {
-            return response()->json($validator->errors());
+    
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
         }
-        // token tokhon e dibe jokhon email password database er sathe match krbe,
-        // jdi email, password valid pay, database er sathe match na kore
-        // tahle nicher success false return krbe.
-        // ar jdi data valid thake, data base e register kra data match kore
-        // tahle success true dibe. ar jdi valid na hoy, match na kore, tahle
-        // upore deya '$validator->errors()' theke laravel er default error return krbe.
-        $token = auth()->attempt($validator->validated());
-        if (!$token)
-        {
+    
+        $user = User::where('email', $request->email)->first();
+    
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
-                'success'=>false,
-                'msg' =>'Username and Password is uncorrect',
-            ]);
-
+                'success' => false,
+                'msg' => 'Username and Password are incorrect',
+            ], 401);
         }
+    
+        $token = JWTAuth::fromUser($user);
+    
         return response()->json([
             'success' => true,
-            'msg'=>'Successfully Login',
+            'msg' => 'Successfully Login',
             'token' => $token,
             'token_type' => 'Bearer',
-            'expires_in' => auth()->factory()->getTTL()*60
+            'name' => $user->name,
+            'user_id' => $user->id,
+            'expires_in' => auth()->factory()->getTTL() * 60,
         ]);
     }
+    
 
     // created Logout API
     public function logout()
