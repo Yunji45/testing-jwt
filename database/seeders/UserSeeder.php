@@ -6,6 +6,9 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use App\Models\Region;
+use App\Models\Wilayah;
+use App\Models\User;
 
 class UserSeeder extends Seeder
 {
@@ -14,24 +17,33 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('users')->insert([
-            'name' => 'Ihya Natik',
+        $jakarta = Wilayah::where('name', 'Jakarta')->first();
+        $bdg = Wilayah::where('name', 'Bandung')->first();
+        $region1 = $jakarta->region;
+        $region2 = $bdg->region;
+        
+        User::create([
+            'name' => 'Ihya',
             'email' => 'ihya@example.com',
-            'email_verified_at' => now(),
-            'password' => Hash::make('contoh'), // pastikan dienkripsi
-            'created_at' => now(),
-            'updated_at' => now(),
+            'password' => Hash::make('password'),
+            'region_id' => $region1->id,
+            'wilayah_id' => $jakarta->id,
         ]);
 
-        DB::table('users')->insert([
-            'name' => 'cahcah',
-            'email' => 'cahcah@example.com',
-            'email_verified_at' => now(),
-            'password' => Hash::make('contoh'), // pastikan dienkripsi
-            'created_at' => now(),
-            'updated_at' => now(),
+        User::create([
+            'name' => 'botfd',
+            'email' => 'bot@example.com',
+            'password' => Hash::make('password'),
+            'region_id' => $region1->id,
+            'wilayah_id' => $jakarta->id,
         ]);
-
+        User::create([
+            'name' => 'pusdatin',
+            'email' => 'pusdatin@gmail.com',
+            'password' => Hash::make('password'),
+            'region_id' => $region2->id,
+            'wilayah_id' => $bdg->id,
+        ]);
 
     }
 }

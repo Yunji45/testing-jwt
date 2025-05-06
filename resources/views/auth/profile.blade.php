@@ -37,13 +37,13 @@
 </div>
 <div id="error" style="margin: auto; text-align:center"></div>
 
-<iframe id="chat-frame" src="http://localhost:3000/" style="
+<!-- <iframe id="chat-frame" src="http://82.25.108.179:3000/" style="
   all: unset;
   position: fixed !important;
-  bottom: 20px !important;
-  right: 20px !important;
-  width: 400px !important;
-  height: 600px !important;
+  bottom: 40px !important;
+  right: 40px !important;
+  width: 600px !important;
+  height: 800px !important;
   border: none !important;
   border-radius: 12px !important;
   z-index: 2147483647 !important;
@@ -52,7 +52,7 @@
   pointer-events: auto !important;
   background: white !important;
   display: block !important;
-"></iframe>
+"></iframe> -->
 
 
 

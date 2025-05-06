@@ -64,8 +64,21 @@ class User extends Authenticatable implements JWTSubject
         return [
             'name' => $this->name,
             'email' => $this->email,
-            'user_id' => $this->id
+            'user_id' => $this->id,
+            'region_id' => $this->region_id ? $this->region->name : null,
+            'wilayah_id' => $this->wilayah_id ? $this->wilayah->name : null,    
         ];
     }
+
+    public function region()
+    {
+        return $this->belongsTo(\App\Models\Region::class);
+    }
+
+    public function wilayah()
+    {
+        return $this->belongsTo(\App\Models\Wilayah::class);
+    }
+
 
 }
