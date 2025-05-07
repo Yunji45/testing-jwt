@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Services\KafkaService;
 
 
 class UserController extends Controller
@@ -87,6 +88,38 @@ class UserController extends Controller
     //     ]);
     // }
 
+    // public function login(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'email' => 'required|string|email',
+    //         'password' => 'required|string|min:6',
+    //     ]);
+    
+    //     if ($validator->fails()) {
+    //         return response()->json($validator->errors(), 422);
+    //     }
+    
+    //     $user = User::where('email', $request->email)->first();
+    
+    //     if (!$user || !Hash::check($request->password, $user->password)) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'msg' => 'Username and Password are incorrect',
+    //         ], 401);
+    //     }
+    
+    //     $token = JWTAuth::fromUser($user);
+    
+    //     return response()->json([
+    //         'success' => true,
+    //         'msg' => 'Successfully Login',
+    //         'token' => $token,
+    //         'token_type' => 'Bearer',
+    //         'name' => $user->name,
+    //         'user_id' => $user->id,
+    //         'expires_in' => auth()->factory()->getTTL() * 60,
+    //     ]);
+    // }
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -109,16 +142,49 @@ class UserController extends Controller
     
         $token = JWTAuth::fromUser($user);
     
+        // Kirim log login ke Kafka
+        try {
+            $kafkaService = new KafkaService();
+    
+            $payload = [
+                'token'      => $token,
+                'user_id'    => $user->id,
+                'name'       => $user->name,
+                'email'      => $user->email,
+                'region_id'  => $user->region_id ? optional($user->region)->name : null,
+                'wilayah_id' => $user->wilayah_id ? optional($user->wilayah)->name : null,
+                'timestamp'  => now()->toIso8601String(),
+            ];
+    
+            $kafkaResponse = $kafkaService->produce(
+                topic: config('kafka.topic', 'logins'),       // topik Kafka
+                key: 'user-login-' . $user->id,               // key untuk Kafka partitioning
+                data: $payload                                // isi pesan
+            );
+    
+            if (isset($kafkaResponse['error']) && $kafkaResponse['error']) {
+                \Log::error('Kafka failed: ' . $kafkaResponse['body']);
+            } else {
+                \Log::info('Kafka login message sent.', $kafkaResponse);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Kafka Exception: ' . $e->getMessage());
+        }
+    
         return response()->json([
-            'success' => true,
-            'msg' => 'Successfully Login',
-            'token' => $token,
+            'success'    => true,
+            'msg'        => 'Successfully Login',
+            'token'      => $token,
             'token_type' => 'Bearer',
-            'name' => $user->name,
-            'user_id' => $user->id,
+            'name'       => $user->name,
+            'email'      => $user->email,
+            'user_id'    => $user->id,
+            'wilayah_id'    => $user->wilayah_id,
+            'region_id'    => $user->region_id,
             'expires_in' => auth()->factory()->getTTL() * 60,
         ]);
     }
+        
     
 
     // created Logout API
