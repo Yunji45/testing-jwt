@@ -179,6 +179,7 @@ class UserController extends Controller
             'name'       => $user->name,
             'email'      => $user->email,
             'user_id'    => $user->id,
+            'no_hp'      => $user->no_hp,
             'wilayah_id'    => $user->wilayah_id,
             'region_id'    => $user->region_id,
             'expires_in' => auth()->factory()->getTTL() * 60,

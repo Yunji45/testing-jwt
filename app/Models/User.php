@@ -65,6 +65,7 @@ class User extends Authenticatable implements JWTSubject
             'name' => $this->name,
             'email' => $this->email,
             'user_id' => $this->id,
+            'no_hp' => $this->no_hp,
             'region_id' => $this->region_id ? $this->region->name : null,
             'wilayah_id' => $this->wilayah_id ? $this->wilayah->name : null,    
         ];

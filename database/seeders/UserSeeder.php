@@ -25,6 +25,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Ihya',
             'email' => 'ihya@example.com',
+            'no_hp' => '08631686186',
             'password' => Hash::make('password'),
             'region_id' => $region1->id,
             'wilayah_id' => $jakarta->id,
@@ -33,6 +34,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'botfd',
             'email' => 'bot@example.com',
+            'no_hp' => '08631686167',
             'password' => Hash::make('password'),
             'region_id' => $region1->id,
             'wilayah_id' => $jakarta->id,
@@ -40,6 +42,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'pusdatin',
             'email' => 'pusdatin@gmail.com',
+            'no_hp' => '0863168678574',
             'password' => Hash::make('password'),
             'region_id' => $region2->id,
             'wilayah_id' => $bdg->id,
