@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -141,36 +142,22 @@ class UserController extends Controller
         }
     
         $token = JWTAuth::fromUser($user);
-    
-        // Kirim log login ke Kafka
         try {
-            $kafkaService = new KafkaService();
-    
-            $payload = [
+            Http::post('http://82.25.108.179:50000/api/v1/login', [
+                'success'    => true,
+                'msg'        => 'Successfully Login',
                 'token'      => $token,
-                'user_id'    => $user->id,
+                'token_type' => 'Bearer',
                 'name'       => $user->name,
                 'email'      => $user->email,
-                'region_id'  => $user->region_id ? optional($user->region)->name : null,
-                'wilayah_id' => $user->wilayah_id ? optional($user->wilayah)->name : null,
-                'timestamp'  => now()->toIso8601String(),
-            ];
-    
-            $kafkaResponse = $kafkaService->produce(
-                topic: config('kafka.topic', 'logins'),       // topik Kafka
-                key: 'user-login-' . $user->id,               // key untuk Kafka partitioning
-                data: $payload                                // isi pesan
-            );
-    
-            if (isset($kafkaResponse['error']) && $kafkaResponse['error']) {
-                \Log::error('Kafka failed: ' . $kafkaResponse['body']);
-            } else {
-                \Log::info('Kafka login message sent.', $kafkaResponse);
-            }
+                'user_id'    => $user->id,
+                // 'no_hp'      => $user->no_hp,
+                'wilayah_id'    => $user->wilayah_id,
+                'region_id'    => $user->region_id,
+                'expires_in' => auth()->factory()->getTTL() * 60,
+            ]);
         } catch (\Exception $e) {
-            \Log::error('Kafka Exception: ' . $e->getMessage());
         }
-    
         return response()->json([
             'success'    => true,
             'msg'        => 'Successfully Login',

@@ -48,5 +48,13 @@ class UserSeeder extends Seeder
             'wilayah_id' => $bdg->id,
         ]);
 
+        User::create([
+            'name' => 'sipd',
+            'email' => 'sipd@gmail.com',
+            'no_hp' => '0863160679574',
+            'password' => Hash::make('password'),
+            'region_id' => $region2->id,
+            'wilayah_id' => $bdg->id,
+        ]);
     }
 }
